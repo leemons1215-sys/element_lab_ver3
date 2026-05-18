@@ -80,6 +80,7 @@
             cursor: pointer !important; 
         }
 
+        /* 3페이지 레이아웃 구조 */
         .page3-wrapper { display: flex; flex-direction: row; gap: 20px; align-items: flex-start; justify-content: center; width: 98vw; flex-wrap: nowrap; padding: 10px; }
         .card-container { 
             background: white; padding: 25px; border-radius: 35px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); 
@@ -101,7 +102,7 @@
         #bgPhotoPreview { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; display: none; }
         #cardCanvas { position: relative; z-index: 2; width: 85%; height: 85%; pointer-events: none; background: transparent; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3)); }
 
-        .particle-info-box { font-size: 1.1rem; text-align: center; font-weight: 800; color: #444; background: #f1f3f5; padding: 10px; border-radius: 12px; white-space: nowrap; margin-top: 5px; }
+        .particle-info-box { font-size: 1.1rem; text-align: center; font-weight: 800; color: #444; background: #e7f5ff; border: 1px solid #ced4da; padding: 12px; border-radius: 12px; white-space: nowrap; margin-bottom: 5px; }
 
         .card-input-box label { display: block; font-weight: 900; margin-bottom: 5px; color: #333; font-size: 1.15rem; text-align: left; }
         .card-input-box input, .card-input-box textarea, .card-input-box select { 
@@ -110,11 +111,9 @@
         }
         
         .feature-item { display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 5px; }
-        textarea.auto-height { flex: 1; height: 42px; min-height: 42px; resize: none !important; overflow: hidden; transition: height 0.1s; padding: 10px; line-height: 1.4; }
+        textarea.auto-height { flex: 1; height: 42px; min-height: 42px; resize: none !important; overflow: hidden; padding: 10px; line-height: 1.4; }
         
         .remove-btn { flex-shrink: 0; border: none; background: #fff0f0; color: #ff4d4d; cursor: pointer; font-weight: bold; padding: 8px 15px; border-radius: 10px; font-size: 0.95rem; transition: background 0.2s; white-space: nowrap; }
-
-        #cardNickname { width: 100%; padding: 15px; border: 2px dashed #d3f9d8; border-radius: 15px; background: #f4fce3; color: var(--g-color); font-size: 1.5rem; font-weight: 800; text-align: center; outline: none; margin-bottom: 10px;}
 
         .side-panel { width: 240px; display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
         .side-box { background: white; padding: 18px; border-radius: 20px; border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
@@ -125,6 +124,36 @@
 
         .btn-ready { animation: glowing 1.5s infinite; background-color: var(--g-color) !important; cursor: pointer !important; }
         @keyframes glowing { 0% { box-shadow: 0 0 5px rgba(51, 154, 240, 0.4); } 50% { box-shadow: 0 0 12px rgba(51, 154, 240, 0.7); } 100% { box-shadow: 0 0 5px rgba(51, 154, 240, 0.4); } }
+
+        /* 💾 [보이지 않는 오프셋 백그라운드용] 캡처 전용 세로형 카드 스타일 클래스 */
+        .forced-vertical {
+            width: 460px !important;
+            max-width: 460px !important;
+            flex-direction: column !important;
+            gap: 15px !important;
+            padding: 20px !important;
+            border-radius: 25px !important;
+            position: absolute !important;
+            left: -9999px !important; /* 화면에서 아예 안 보이도록 밖으로 밀어냄 */
+            top: 0 !important;
+        }
+        .forced-vertical .card-left, .forced-vertical .card-right {
+            width: 100% !important;
+            flex: none !important;
+            border-left: none !important;
+            padding-left: 0 !important;
+        }
+        .forced-vertical .photo-upload-area {
+            width: 100% !important;
+            height: 420px !important; /* 1:1 정사각형 고정 */
+            max-height: 420px !important;
+            aspect-ratio: 1 / 1 !important;
+        }
+        .forced-vertical #cardName { font-size: 1.8rem !important; }
+        .forced-vertical #cardSymbol { font-size: 1.5rem !important; }
+        .forced-vertical .particle-info-box { font-size: 0.95rem !important; padding: 8px !important; }
+        .forced-vertical .card-input-box label { font-size: 1rem !important; }
+        .forced-vertical .card-input-box input, .forced-vertical .card-input-box textarea, .forced-vertical .card-input-box select { padding: 8px !important; font-size: 1rem !important; }
     </style>
 </head>
 <body>
@@ -191,13 +220,12 @@
                 <div class="card-left">
                     <div class="card-header"><span id="cardName">수소</span><span id="cardSymbol">H</span></div>
                     <div class="photo-upload-area"><img id="bgPhotoPreview"><canvas id="cardCanvas" width="800" height="800"></canvas></div>
-                    <div class="particle-info-box">양성자: <span id="cP">1</span> | 중성자: <span id="cN">0</span> | 전자: <span id="cE">1</span></div>
                 </div>
                 <div class="card-right">
-                    <input type="text" id="cardNickname" placeholder="원소의 특징을 담은 [별명]을 지어주세요." oninput="checkCompletion()">
+                    <div class="particle-info-box">양성자: <span id="cP">1</span> | 중성자: <span id="cN">0</span> | 전자: <span id="cE">1</span></div>
                     <div class="row-group" style="display:flex; gap:10px;">
-                        <div class="card-input-box" style="flex:1;"><label>🌡️ 상태</label><select id="cardState" required onchange="checkCompletion()"><option value="" disabled selected>[선택]</option><option value="기체">기체</option><option value="액체">액체</option><option value="고체">고체</option></select></div>
-                        <div class="card-input-box" style="flex:1.2;"><label>⚖️ 밀도(g/cm³)</label><input type="text" id="cardDensity" placeholder="[숫자 입력]" oninput="checkCompletion()"></div>
+                        <div class="card-input-box" style="flex:1;"><label>🌡️ 상온에서의 상태</label><select id="cardState" required onchange="checkCompletion()"><option value="" disabled selected>[선택]</option><option value="기체">기체</option><option value="액체">액체</option><option value="고체">고체</option></select></div>
+                        <div class="card-input-box" style="flex:1.2;"><label>🧬 금속 or 비금속</label><select id="cardType" required onchange="checkCompletion()"><option value="" disabled selected>[선택]</option><option value="금속">금속 원소</option><option value="비금속">비금속 원소</option></select></div>
                     </div>
                     <div class="card-input-box">
                         <label>🔗 원소로 이루어진 물질 or 쓰임새 (2개 이상)</label>
@@ -226,7 +254,7 @@
                 </div>
                 <div id="cardAlertBox" style="color:#ff4d4d; font-weight:800; font-size:0.95rem; display:none; text-align:center; background:#fff5f5; padding:10px; border-radius:10px;">아직 채워지지 않은 정보가 있습니다!</div>
                 <button id="downloadBtn" class="btn-verify" style="background:#adb5bd; height:80px; font-size:1.4rem; cursor: default;" onclick="handleDownload()">💾 이미지 저장</button>
-                <button class="btn-verify" style="background:#f1f3f5; color: #666; height:55px; font-size:1.1rem;" onclick="goPage(2)">← 모형 다시 수정</button>
+                <button class="btn-verify" style="background:#f1f3f5; color: #666; height:55px; font-size:1.1rem; margin-top:5px;" onclick="goPage(2)">← 모형 다시 수정</button>
             </div>
         </div>
     </section>
@@ -253,16 +281,68 @@
         function animate() { rotationAngle += 0.007; drawAtom(ctx, true); if (document.getElementById('page3').classList.contains('active')) drawAtom(cardCtx, false); if (confetti.length > 0) confetti.forEach(p => { if (p.life > 0) { p.x += p.vx; p.y += p.vy; p.vy += 0.5; p.life--; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.globalAlpha = p.life/100; ctx.fill(); ctx.globalAlpha = 1; } }); requestAnimationFrame(animate); }
         function triggerConfetti() { for (let i = 0; i < 60; i++) confetti.push({ x: cx, y: cy, vx: (Math.random()-0.5)*15, vy: (Math.random()-1.2)*20, r: Math.random()*5+2, color: `hsl(${Math.random()*360}, 70%, 60%)`, life: 100 }); }
         function handlePhotoUpload(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { const preview = document.getElementById('bgPhotoPreview'); preview.src = e.target.result; preview.style.display = 'block'; checkCompletion(); }; reader.readAsDataURL(input.files[0]); } }
+        function autoResize(ta) { ta.style.height = '42px'; ta.style.height = (ta.scrollHeight) + 'px'; }
+        function addFeatureField() { const list = document.getElementById('featureList'); const item = document.createElement('div'); item.className = 'feature-item'; item.innerHTML = `<textarea class="auto-height" placeholder="특징 입력" oninput="checkCompletion(); autoResize(this);"></textarea><button class="remove-btn" onclick="this.parentElement.remove(); checkCompletion();">삭제</button>`; list.appendChild(item); checkCompletion(); }
         
-        // 자동 조절 함수 개선: 초기 높이(42px)로 초기화 후 조절
-        function autoResize(ta) { 
-            ta.style.height = '42px'; 
-            ta.style.height = (ta.scrollHeight) + 'px'; 
+        function checkCompletion() { 
+            const fields = ['cardState', 'cardType', 'cardExample', 'authorNum', 'authorName']; 
+            const allFilled = fields.every(id => document.getElementById(id).value.trim() !== ""); 
+            const fCount = Array.from(document.querySelectorAll('#featureList textarea')).filter(ta => ta.value.trim().length > 0).length; 
+            const btn = document.getElementById('downloadBtn'); 
+            const alertBox = document.getElementById('cardAlertBox'); 
+            if(allFilled && fCount >= 2) { btn.classList.add('btn-ready'); alertBox.style.display = 'none'; return true; } else { btn.classList.remove('btn-ready'); return false; } 
         }
 
-        function addFeatureField() { const list = document.getElementById('featureList'); const item = document.createElement('div'); item.className = 'feature-item'; item.innerHTML = `<textarea class="auto-height" placeholder="특징 입력" oninput="checkCompletion(); autoResize(this);"></textarea><button class="remove-btn" onclick="this.parentElement.remove(); checkCompletion();">삭제</button>`; list.appendChild(item); checkCompletion(); }
-        function checkCompletion() { const fields = ['cardNickname', 'cardState', 'cardDensity', 'cardExample', 'authorNum', 'authorName']; const allFilled = fields.every(id => document.getElementById(id).value.trim() !== ""); const fCount = Array.from(document.querySelectorAll('#featureList textarea')).filter(ta => ta.value.trim().length > 0).length; const btn = document.getElementById('downloadBtn'); const alertBox = document.getElementById('cardAlertBox'); if(allFilled && fCount >= 2) { btn.classList.add('btn-ready'); alertBox.style.display = 'none'; return true; } else { btn.classList.remove('btn-ready'); return false; } }
-        function handleDownload() { if(!checkCompletion()) { document.getElementById('cardAlertBox').style.display = 'block'; return; } const addBtn = document.getElementById('addFeatureBtn'); const removeBtns = document.querySelectorAll('.remove-btn'); addBtn.style.display = 'none'; removeBtns.forEach(b => b.style.display = 'none'); const aNum = document.getElementById('authorNum').value.trim(), aName = document.getElementById('authorName').value.trim(); html2canvas(document.getElementById('elementCard'), { scale: 2, useCORS: true }).then(c => { const a = document.createElement('a'); a.download = `${elements[currentIdx].n}_원소카드 (${aNum} ${aName}).png`; a.href = c.toDataURL(); a.click(); addBtn.style.display = 'block'; removeBtns.forEach(b => b.style.display = 'block'); }); }
+        /* 💡 화면 전환 효과(Layout Shift)를 차단하기 위해 메모리 상에서 복제하여 캡처하는 로직 */
+        function handleDownload() { 
+            if(!checkCompletion()) { document.getElementById('cardAlertBox').style.display = 'block'; return; } 
+            
+            const originalCard = document.getElementById('elementCard');
+            const aNum = document.getElementById('authorNum').value.trim(), aName = document.getElementById('authorName').value.trim(); 
+            
+            // 1. 원본 카드를 완벽히 똑같이 복제(Clone)합니다.
+            const clonedCard = originalCard.cloneNode(true);
+            
+            // 2. 복제본 내부의 입력값들을 수동으로 완벽히 매칭 복사합니다.
+            clonedCard.querySelector('#cardState').value = document.getElementById('cardState').value;
+            clonedCard.querySelector('#cardType').value = document.getElementById('cardType').value;
+            clonedCard.querySelector('#cardExample').value = document.getElementById('cardExample').value;
+            
+            const origTAs = originalCard.querySelectorAll('#featureList textarea');
+            const cloneTAs = clonedCard.querySelectorAll('#featureList textarea');
+            origTAs.forEach((ta, index) => { if(cloneTAs[index]) cloneTAs[index].value = ta.value; });
+            
+            // 3. 복제본 내부에서 캡처용으로 필요 없는 디자인 요소(삭제/추가 버튼)들을 제거합니다.
+            const clonedAddBtn = clonedCard.querySelector('#addFeatureBtn');
+            if(clonedAddBtn) clonedAddBtn.style.display = 'none';
+            clonedCard.querySelectorAll('.remove-btn').forEach(b => b.style.display = 'none');
+            
+            // 4. 복제본에만 'forced-vertical' 클래스를 주입하여 화면 바깥 오프셋 구역에 임시 배치합니다.
+            clonedCard.classList.add('forced-vertical');
+            document.body.appendChild(clonedCard);
+            
+            // 5. 복제본 내부의 캔버스 엘리먼트를 찾아 원본 캔버스 이미지를 그대로 그려 복제합니다.
+            const origCanvas = document.getElementById('cardCanvas');
+            const clonedCanvas = clonedCard.querySelector('#cardCanvas');
+            if (origCanvas && clonedCanvas) {
+                const clonedCtx = clonedCanvas.getContext('2d');
+                clonedCtx.drawImage(origCanvas, 0, 0);
+            }
+            
+            // 6. 화면엔 어떠한 변화도 주지 않은 채, 백그라운드의 복제본만 조용히 캡처합니다.
+            setTimeout(() => {
+                html2canvas(clonedCard, { scale: 2, useCORS: true }).then(c => { 
+                    const a = document.createElement('a'); 
+                    a.download = `${elements[currentIdx].n}_원소카드 (${aNum} ${aName}).png`; 
+                    a.href = c.toDataURL(); 
+                    a.click(); 
+                    
+                    // 7. 캡처 완료 후 생성했던 임시 복제 요소를 완벽히 소멸시킵니다.
+                    clonedCard.remove();
+                }); 
+            }, 100);
+        }
+        
         function syncCard() { const el = elements[currentIdx]; document.getElementById('cardName').innerText = el.n; document.getElementById('cardSymbol').innerText = el.s; document.getElementById('cP').innerText = atoms.p.length; document.getElementById('cN').innerText = atoms.n.length; document.getElementById('cE').innerText = atoms.e.length; }
         updateTarget(1); animate();
     </script>
