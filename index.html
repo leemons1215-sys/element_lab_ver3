@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>원소 디자인 랩 - 원자 모형 & 카드 만들기🔬⚛️</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --p-color: #ff4d4d;
+            --e-color: #339af0;
+            --n-color: #868e96;
+            --g-color: #20c997;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { 
+            display: flex; flex-direction: column; align-items: center; 
+            background-color: #f8f9fa; color: #333; font-family: 'Pretendard', sans-serif; 
+            width: 100vw; min-height: 100vh;
+            overflow-x: auto;
+            justify-content: center;
+        }
+
+        #page1 { background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); }
+        .intro-box {
+            background: rgba(255, 255, 255, 0.95); padding: 50px; border-radius: 40px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center; 
+            width: auto; min-width: 320px; max-width: 90vw; backdrop-filter: blur(10px);
+        }
+        .intro-text { text-align: left; margin: 30px 0; line-height: 2.2; font-size: 1.4rem; font-weight: 600; white-space: nowrap; }
+
+        .page-section { 
+            display: none; width: 100%; min-height: 100vh; 
+            flex-direction: column; align-items: center; justify-content: center; 
+            padding: 20px;
+        }
+        .active { display: flex !important; }
+
+        .main-wrapper { display: flex; flex-direction: row; gap: 20px; align-items: center; justify-content: center; width: 95%; max-width: 1200px; height: 90%; flex-wrap: nowrap; }
+        .canvas-container { position: relative; height: 70vh; aspect-ratio: 1/1; flex-shrink: 1; }
+        canvas { width: 100%; height: 100%; background-color: #f8f9fa; cursor: pointer; }
+                
+        #alertBox {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: white; padding: 0.8rem 1.5rem; border-radius: 50px; font-weight: 800; font-size: 1.1rem;
+            display: none; z-index: 10; pointer-events: none; text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3); white-space: nowrap;
+        }
+        .alert-wrong { background: #ff4d4d; box-shadow: 0 0 25px rgba(255, 77, 77, 0.7); }
+        .alert-success { background: #20c997; box-shadow: 0 0 30px rgba(32, 201, 151, 0.8); }
+
+        .right-panel { width: 280px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; font-size: 0.9rem; }
+        .info-box { background: white; padding: 10px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #eee; }
+        .info-header { margin: 0 0 5px 0; color: #339af0; font-size: 1.1rem; border-bottom: 2px solid #f1f3f5; padding-bottom: 3px; }
+        .info-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-weight: 600; }
+        .check-btn-outline { padding: 3px 8px; font-size: 0.75rem; cursor: pointer; border-radius: 6px; border: 1px solid #dee2e6; background: white; color: #339af0; font-weight: bold; animation: glowing 1.5s infinite; }
+        
+        .charge-box { padding: 8px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; text-align: center; font-weight: 800; transition: all 0.3s ease; }
+        .usage-guide { background: #e9ecef; padding: 8px; border-radius: 10px; font-size: 0.72rem; line-height: 1.4; color: #495057; }
+        
+        button.action-btn { padding: 8px; font-size: 10px; font-weight: 800; cursor: pointer; border-radius: 8px; border: none; color: white; min-width: 65px; }
+        .btn-p { background-color: var(--p-color) !important; }
+        .btn-n { background-color: var(--n-color) !important; }
+        .btn-e { background-color: var(--e-color) !important; }
+        .btn-verify { background-color: var(--g-color); width: 100%; height: 40px; font-weight: 800; border-radius: 10px; color: white; border: none; cursor: pointer; font-size: 1rem; }
+        
+        .page2-nav-buttons { display: flex; gap: 10px; width: 100%; margin-top: 5px; }
+        .page2-nav-buttons button { flex: 1; height: 45px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; font-size: 0.9rem; }
+
+        @keyframes next-btn-glow {
+            0% { box-shadow: 0 0 5px rgba(52, 58, 64, 0.5); transform: scale(1); }
+            50% { box-shadow: 0 0 15px rgba(52, 58, 64, 0.8); transform: scale(1.03); }
+            100% { box-shadow: 0 0 5px rgba(52, 58, 64, 0.5); transform: scale(1); }
+        }
+        .btn-next-active { 
+            animation: next-btn-glow 1.2s infinite !important; 
+            background-color: #343a40 !important; 
+            opacity: 1 !important; 
+            cursor: pointer !important; 
+        }
+
+        .page3-wrapper { display: flex; flex-direction: row; gap: 20px; align-items: flex-start; justify-content: center; width: 98vw; flex-wrap: nowrap; padding: 10px; }
+        .card-container { 
+            background: white; padding: 25px; border-radius: 35px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); 
+            width: 100%; max-width: 1100px; border: 1px solid #eee; 
+            display: flex; flex-direction: row; gap: 30px; align-items: stretch; flex-shrink: 1;
+        }
+        .card-left { flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 10px; }
+        .card-right { flex: 1.5; min-width: 350px; display: flex; flex-direction: column; gap: 12px; border-left: 2px dashed #eee; padding-left: 30px; }
+
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 5px solid var(--e-color); padding-bottom: 5px; margin-bottom: 10px; }
+        #cardName { font-size: 2.2rem; font-weight: 900; }
+        #cardSymbol { font-size: 1.8rem; color:#888; font-weight:800; }
+
+        .photo-upload-area {
+            position: relative; width: 100%; aspect-ratio: 1 / 1; 
+            background: #f1f3f5; border-radius: 25px; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+        }
+        #bgPhotoPreview { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; display: none; }
+        #cardCanvas { position: relative; z-index: 2; width: 85%; height: 85%; pointer-events: none; background: transparent; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3)); }
+
+        .particle-info-box { font-size: 1.1rem; text-align: center; font-weight: 800; color: #444; background: #f1f3f5; padding: 10px; border-radius: 12px; white-space: nowrap; margin-top: 5px; }
+
+        .card-input-box label { display: block; font-weight: 900; margin-bottom: 5px; color: #333; font-size: 1.15rem; text-align: left; }
+        .card-input-box input, .card-input-box textarea, .card-input-box select { 
+            width: 100%; padding: 12px; border: 2px solid #f1f3f5; border-radius: 10px; box-sizing: border-box; 
+            background: #f8f9fa; font-family: inherit; font-size: 1.15rem; font-weight: 700; text-align: center;
+        }
+        
+        .feature-item { display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 5px; }
+        textarea.auto-height { flex: 1; height: 42px; min-height: 42px; resize: none !important; overflow: hidden; transition: height 0.1s; padding: 10px; line-height: 1.4; }
+        
+        .remove-btn { flex-shrink: 0; border: none; background: #fff0f0; color: #ff4d4d; cursor: pointer; font-weight: bold; padding: 8px 15px; border-radius: 10px; font-size: 0.95rem; transition: background 0.2s; white-space: nowrap; }
+
+        #cardNickname { width: 100%; padding: 15px; border: 2px dashed #d3f9d8; border-radius: 15px; background: #f4fce3; color: var(--g-color); font-size: 1.5rem; font-weight: 800; text-align: center; outline: none; margin-bottom: 10px;}
+
+        .side-panel { width: 240px; display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
+        .side-box { background: white; padding: 18px; border-radius: 20px; border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .side-box input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; text-align: center; font-weight: bold; font-size: 1.1rem; box-sizing: border-box; }
+
+        .custom-file-upload { display: inline-block; padding: 10px; cursor: pointer; background: #e7f5ff; color: var(--e-color); border-radius: 12px; font-weight: 800; font-size: 1.1rem; width: 100%; text-align: center; }
+        .add-feature-btn { background: #e7f5ff; border: none; padding: 12px; border-radius: 12px; cursor: pointer; color: var(--e-color); font-weight: bold; width: 100%; font-size: 1.1rem; margin-top: 10px; }
+
+        .btn-ready { animation: glowing 1.5s infinite; background-color: var(--g-color) !important; cursor: pointer !important; }
+        @keyframes glowing { 0% { box-shadow: 0 0 5px rgba(51, 154, 240, 0.4); } 50% { box-shadow: 0 0 12px rgba(51, 154, 240, 0.7); } 100% { box-shadow: 0 0 5px rgba(51, 154, 240, 0.4); } }
+    </style>
+</head>
+<body>
+
+    <section id="page1" class="page-section active">
+        <div class="intro-box">
+            <h1>원소 디자인 랩🔬</h1>
+            <p style="font-size:1.2rem; color:#888; margin-bottom:30px; font-weight:bold;">Element Design Lab</p>
+            <div class="intro-text">
+                1. <b>원자 모형 만들기:</b> 목표 원소에 맞게 입자를 배치하세요.<br>
+                2. <b>원소 카드 만들기:</b> 원소의 특징을 조사하여 카드를 제작하세요.
+            </div>
+            <button class="btn-verify" style="width:250px; height:65px; font-size:1.6rem;" onclick="goPage(2)">시작하기 →</button>
+            <div style="font-size:0.8rem; color:#adb5bd; margin-top:20px;">Copyright © leemons1215@gmail.com</div>
+        </div>
+    </section>
+
+    <section id="page2" class="page-section">
+        <div class="main-wrapper">
+            <div>
+                <div class="canvas-container">
+                    <canvas id="atomCanvas" width="800" height="800" onclick="handleCanvasClick(event)"></canvas>
+                    <div id="alertBox"></div>
+                </div>
+                <div style="margin-top:10px; text-align:center;">
+                    <div style="display:flex; gap:8px; justify-content:center; margin-bottom:12px;">
+                        <div><button id="addPBtn" class="action-btn btn-p" onclick="addParticle('p')">양성자(+)</button><div style="font-weight:800; font-size:0.9rem;"><span id="currP">0</span>개</div></div>
+                        <div><button id="addNBtn" class="action-btn btn-n" onclick="addParticle('n')">중성자(0)</button><div style="font-weight:800; font-size:0.9rem;"><span id="currN">0</span>개</div></div>
+                        <div><button id="addEBtn" class="action-btn btn-e" onclick="addParticle('e')">전자(-)</button><div style="font-weight:800; font-size:0.9rem;"><span id="currE">0</span>개</div></div>
+                        <button class="action-btn" style="background:#343a40" onclick="reset()">초기화</button>
+                    </div>
+                    <button class="btn-verify" onclick="verifyAtom()">모형 확인하기</button>
+                </div>
+            </div>
+            <div class="right-panel">
+                <h1>원자 모형 만들기🔬</h1>
+                <div class="info-box">
+                    <h3 id="targetHeader" class="info-header">H 수소</h3>
+                    <div class="info-item"><span>양성자 수:</span> <span id="targetP">1</span></div>
+                    <div class="info-item"><span>중성자 수:</span> <span id="targetN">0</span></div>
+                    <div class="info-item"><span>전자 수:</span> <span id="targetEContainer"><button class="check-btn-outline" onclick="showElectronCount()">클릭하여 확인</button></span></div>
+                </div>
+                <div id="chargeBox" class="charge-box" style="background-color: #e6fcf5; color: var(--g-color);">총 전하량: <span id="totalCharge">0</span></div>
+                <div class="usage-guide">
+                    <b>💡 사용 방법</b><br>
+                    1. 슬라이더로 목표 원소를 정하세요.<br>
+                    2. 정보를 보고 입자를 알맞게 배치하세요.<br>
+                    3. 원자 속 입자를 클릭하면 지워집니다.
+                </div>
+                <input type="range" id="elSlider" min="1" max="20" value="1" oninput="updateTarget(this.value)" style="width:100%;">
+                <div id="sliderLabel" style="text-align:center; font-weight:800; color:var(--e-color); margin-top:5px;">H 수소</div>
+                <button id="orbitToggleBtn" class="btn-verify" style="background:var(--e-color); height:45px; font-size:1rem; margin-top:5px;" onclick="toggleOrbit()">🔵 전자 궤도 보이기/숨기기</button>
+                <div class="page2-nav-buttons">
+                    <button id="nextBtn" style="background:#adb5bd; color:white; opacity: 0.6; cursor: default;" disabled onclick="goPage(3)">카드 만들기 →</button>
+                    <button style="background:#adb5bd; color:white;" onclick="goPage(1)">🏠 처음으로</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="page3" class="page-section">
+        <div class="page3-wrapper">
+            <div id="elementCard" class="card-container">
+                <div class="card-left">
+                    <div class="card-header"><span id="cardName">수소</span><span id="cardSymbol">H</span></div>
+                    <div class="photo-upload-area"><img id="bgPhotoPreview"><canvas id="cardCanvas" width="800" height="800"></canvas></div>
+                    <div class="particle-info-box">양성자: <span id="cP">1</span> | 중성자: <span id="cN">0</span> | 전자: <span id="cE">1</span></div>
+                </div>
+                <div class="card-right">
+                    <input type="text" id="cardNickname" placeholder="원소의 특징을 담은 [별명]을 지어주세요." oninput="checkCompletion()">
+                    <div class="row-group" style="display:flex; gap:10px;">
+                        <div class="card-input-box" style="flex:1;"><label>🌡️ 상태</label><select id="cardState" required onchange="checkCompletion()"><option value="" disabled selected>[선택]</option><option value="기체">기체</option><option value="액체">액체</option><option value="고체">고체</option></select></div>
+                        <div class="card-input-box" style="flex:1.2;"><label>⚖️ 밀도(g/cm³)</label><input type="text" id="cardDensity" placeholder="[숫자 입력]" oninput="checkCompletion()"></div>
+                    </div>
+                    <div class="card-input-box">
+                        <label>🔗 원소로 이루어진 물질 or 쓰임새 (2개 이상)</label>
+                        <textarea id="cardExample" class="auto-height" placeholder="(예시) 물(H2O), 로켓 연료, 연료 전지" oninput="autoResize(this); checkCompletion()" style="text-align:center;"></textarea>
+                    </div>
+                    <div class="card-input-box">
+                        <label>📝 원소의 특징 (2개 이상)</label>
+                        <div id="featureList" style="display:flex; flex-direction:column; gap:8px;">
+                            <div class="feature-item"><textarea class="auto-height" placeholder="(예시) 우주에서 가장 가볍고 풍부한 원소이다." oninput="autoResize(this); checkCompletion();"></textarea></div>
+                            <div class="feature-item"><textarea class="auto-height" placeholder="(예시) 연소할 때 많은 에너지를 내며 물만 생성한다." oninput="autoResize(this); checkCompletion();"></textarea></div>
+                        </div>
+                        <button id="addFeatureBtn" class="add-feature-btn" onclick="addFeatureField()">+ 특징 입력칸 추가</button>
+                    </div>
+                </div>
+            </div>
+            <div class="side-panel">
+                <div class="side-box"><label style="display:block; font-weight:800; margin-bottom:10px; font-size:1.1rem; text-align:left;">👤 원소 카드 제작자</label>
+                    <div style="display:flex; flex-direction: column; gap:8px;">
+                        <input type="text" id="authorNum" placeholder="학번 입력" oninput="checkCompletion()">
+                        <input type="text" id="authorName" placeholder="이름 입력" oninput="checkCompletion()">
+                    </div>
+                </div>
+                <div class="side-box"><h3 style="font-size:1.1rem; margin:0 0 12px 0; font-weight:800; text-align:left;">🎨 원소 카드 꾸미기</h3>
+                    <label for="photoInput" class="custom-file-upload">🖼️ 배경 사진 업로드</label><input type="file" id="photoInput" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
+                    <p style="font-size:0.8rem; color:#888; margin-top:10px; line-height:1.5; text-align:left;">* 원소와 관련된 사진을 골라보세요!<br>(예: 수소-밤하늘, 탄소-다이아몬드 등)</p>
+                </div>
+                <div id="cardAlertBox" style="color:#ff4d4d; font-weight:800; font-size:0.95rem; display:none; text-align:center; background:#fff5f5; padding:10px; border-radius:10px;">아직 채워지지 않은 정보가 있습니다!</div>
+                <button id="downloadBtn" class="btn-verify" style="background:#adb5bd; height:80px; font-size:1.4rem; cursor: default;" onclick="handleDownload()">💾 이미지 저장</button>
+                <button class="btn-verify" style="background:#f1f3f5; color: #666; height:55px; font-size:1.1rem;" onclick="goPage(2)">← 모형 다시 수정</button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const canvas = document.getElementById('atomCanvas'); const ctx = canvas.getContext('2d');
+        const cardCanvas = document.getElementById('cardCanvas'); const cardCtx = cardCanvas.getContext('2d');
+        const cx = 400, cy = 425; let rotationAngle = 0, showOrbitLines = false, isVerified = false;
+        const elements = [{n:"수소",s:"H",p:1,nt:0},{n:"헬륨",s:"He",p:2,nt:2},{n:"리튬",s:"Li",p:3,nt:3},{n:"베릴륨",s:"Be",p:4,nt:5},{n:"붕소",s:"B",p:5,nt:5},{n:"탄소",s:"C",p:6,nt:6},{n:"질소",s:"N",p:7,nt:7},{n:"산소",s:"O",p:8,nt:8},{n:"플루오린",s:"F",p:9,nt:10},{n:"네온",s:"Ne",p:10,nt:10},{n:"나트륨",s:"Na",p:11,nt:12},{n:"마그네슘",s:"Mg",p:12,nt:12},{n:"알루미늄",s:"Al",p:13,nt:14},{n:"규소",s:"Si",p:14,nt:14},{n:"인",s:"P",p:15,nt:16},{n:"황",s:"S",p:16,nt:16},{n:"염소",s:"Cl",p:17,nt:18},{n:"아르곤",s:"Ar",p:18,nt:22},{n:"칼륨",s:"K",p:19,nt:20},{n:"칼슘",s:"Ca",p:20,nt:20}];
+        let atoms = { p: [], n: [], e: [] }, currentIdx = 0, confetti = [];
+
+        function goPage(num) { document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active')); const targetPage = document.getElementById('page' + num); if (targetPage) targetPage.classList.add('active'); window.scrollTo(0, 0); if(num === 3) syncCard(); }
+        function updateTarget(val) { currentIdx = val - 1; isVerified = false; const el = elements[currentIdx]; document.getElementById('targetHeader').innerText = `${el.s} ${el.n}`; document.getElementById('sliderLabel').innerText = `${el.s} ${el.n}`; document.getElementById('targetP').innerText = el.p; document.getElementById('targetN').innerText = el.nt; document.getElementById('targetEContainer').innerHTML = `<button class="check-btn-outline" onclick="showElectronCount()">클릭하여 확인</button>`; const nextBtn = document.getElementById('nextBtn'); nextBtn.disabled = true; nextBtn.style.background = "#adb5bd"; nextBtn.style.opacity = "0.6"; nextBtn.classList.remove('btn-next-active'); }
+        function showElectronCount() { document.getElementById('targetEContainer').innerText = elements[currentIdx].p; }
+        function addParticle(type) { if (isVerified) return; if (atoms[type].length < 26) { atoms[type].push({ id: Math.random() }); if (type !== 'e') reorderCore(); updateUI(); } }
+        function handleCanvasClick(event) { if (isVerified) return; const rect = canvas.getBoundingClientRect(), scale = 800 / rect.width; const x = (event.clientX - rect.left) * scale, y = (event.clientY - rect.top) * scale; let deleted = false; const types = ['e', 'n', 'p']; for (let type of types) { for (let i = atoms[type].length - 1; i >= 0; i--) { const p = atoms[type][i]; if (!deleted && Math.sqrt((x - p.lastX)**2 + (y - p.lastY)**2) < 25) { atoms[type].splice(i, 1); deleted = true; if (type !== 'e') reorderCore(); } } if (deleted) break; } if (deleted) updateUI(); }
+        function reorderCore() { const combined = [...atoms.p.map(p => ({...p, type: 'p'})), ...atoms.n.map(n => ({...n, type: 'n'}))]; for (let i = combined.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [combined[i], combined[j]] = [combined[j], combined[i]]; } combined.forEach((p, i) => { const angle = i * 2.399; const dist = Math.sqrt(i) * 14; const orig = atoms[p.type].find(item => item.id === p.id); if (orig) { orig.lastX = cx + Math.cos(angle)*dist; orig.lastY = cy + Math.sin(angle)*dist; } }); }
+        function reset() { isVerified = false; atoms = { p: [], n: [], e: [] }; updateUI(); }
+        function updateUI() { document.getElementById('currP').innerText = atoms.p.length; document.getElementById('currN').innerText = atoms.n.length; document.getElementById('currE').innerText = atoms.e.length; const charge = atoms.p.length - atoms.e.length; const chargeText = (charge > 0 ? "+" : "") + charge; const chargeBox = document.getElementById('totalCharge'); chargeBox.innerText = chargeText; if (charge > 0) { chargeBox.parentElement.style.backgroundColor = "#fff5f5"; chargeBox.parentElement.style.color = "#ff4d4d"; } else if (charge < 0) { chargeBox.parentElement.style.backgroundColor = "#e7f5ff"; chargeBox.parentElement.style.color = "#339af0"; } else { chargeBox.parentElement.style.backgroundColor = "#e6fcf5"; chargeBox.parentElement.style.color = "#20c997"; } }
+        function verifyAtom() { const target = elements[currentIdx], isCorrect = (atoms.p.length === target.p && atoms.n.length === target.nt && atoms.e.length === target.p); const box = document.getElementById('alertBox'); box.style.display = 'block'; box.className = "animate-alert " + (isCorrect ? "alert-success" : "alert-wrong"); box.innerText = isCorrect ? `✨ 정답입니다! [${target.n}] 완성!` : "입자를 다시 확인해 보세요! ⚠️"; const nextBtn = document.getElementById('nextBtn'); if (isCorrect) { isVerified = true; triggerConfetti(); nextBtn.disabled = false; nextBtn.classList.add('btn-next-active'); } else { isVerified = false; nextBtn.disabled = true; nextBtn.style.background = "#adb5bd"; nextBtn.style.opacity = "0.6"; nextBtn.classList.remove('btn-next-active'); } setTimeout(() => { box.style.display = 'none'; }, 2200); }
+        function toggleOrbit() { showOrbitLines = !showOrbitLines; const btn = document.getElementById('orbitToggleBtn'); btn.style.background = showOrbitLines ? "#adb5bd" : "var(--e-color)"; }
+        function drawAtom(targetCtx, move = true) { targetCtx.clearRect(0, 0, 800, 800); const eLen = atoms.e.length; let r = eLen === 0 ? 140 : (eLen < 3 ? 180 : (eLen < 11 ? 240 : 330)); targetCtx.shadowColor = 'rgba(0, 0, 0, 0.2)'; targetCtx.shadowBlur = 15; const bgGrad = targetCtx.createRadialGradient(cx-30, cy-30, 0, cx, cy, r); bgGrad.addColorStop(0, 'rgba(240, 248, 255, 1)'); bgGrad.addColorStop(1, 'rgba(220, 232, 245, 1)'); targetCtx.beginPath(); targetCtx.arc(cx, cy, r, 0, Math.PI * 2); targetCtx.fillStyle = bgGrad; targetCtx.fill(); targetCtx.shadowBlur = 0; atoms.p.forEach(p => drawBall(targetCtx, p.lastX, p.lastY, 14, '#ff4d4d', '+')); atoms.n.forEach(n => drawBall(targetCtx, n.lastX, n.lastY, 14, '#adb5bd', '')); let eIdx = 0; [2, 8, 8, 8].forEach((max, s) => { const count = Math.min(eLen - eIdx, max); if(count <= 0) return; const dist = 135 + (s * 60); if (showOrbitLines) { targetCtx.beginPath(); targetCtx.arc(cx, cy, dist, 0, Math.PI * 2); targetCtx.strokeStyle = 'rgba(51, 154, 240, 0.2)'; targetCtx.lineWidth = 2; targetCtx.stroke(); } for (let i = 0; i < count; i++) { const p = atoms.e[eIdx + i]; let currentAngle = (i * (Math.PI*2/count)) + (move ? (rotationAngle * (1 / (s + 1))) : 0); let ex = cx + Math.cos(currentAngle)*dist, ey = cy + Math.sin(currentAngle)*dist; if(move) { p.lastX = ex; p.lastY = ey; } drawBall(targetCtx, ex, ey, 13, '#339af0', '-'); } eIdx += count; }); }
+        function drawBall(c, x, y, r, color, label) { c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fillStyle = color; c.fill(); if (label) { c.fillStyle="white"; c.font=`bold ${r*1.2}px Arial`; c.textAlign="center"; c.textBaseline="middle"; c.fillText(label, x, y); } }
+        function animate() { rotationAngle += 0.007; drawAtom(ctx, true); if (document.getElementById('page3').classList.contains('active')) drawAtom(cardCtx, false); if (confetti.length > 0) confetti.forEach(p => { if (p.life > 0) { p.x += p.vx; p.y += p.vy; p.vy += 0.5; p.life--; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.globalAlpha = p.life/100; ctx.fill(); ctx.globalAlpha = 1; } }); requestAnimationFrame(animate); }
+        function triggerConfetti() { for (let i = 0; i < 60; i++) confetti.push({ x: cx, y: cy, vx: (Math.random()-0.5)*15, vy: (Math.random()-1.2)*20, r: Math.random()*5+2, color: `hsl(${Math.random()*360}, 70%, 60%)`, life: 100 }); }
+        function handlePhotoUpload(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { const preview = document.getElementById('bgPhotoPreview'); preview.src = e.target.result; preview.style.display = 'block'; checkCompletion(); }; reader.readAsDataURL(input.files[0]); } }
+        
+        // 자동 조절 함수 개선: 초기 높이(42px)로 초기화 후 조절
+        function autoResize(ta) { 
+            ta.style.height = '42px'; 
+            ta.style.height = (ta.scrollHeight) + 'px'; 
+        }
+
+        function addFeatureField() { const list = document.getElementById('featureList'); const item = document.createElement('div'); item.className = 'feature-item'; item.innerHTML = `<textarea class="auto-height" placeholder="특징 입력" oninput="checkCompletion(); autoResize(this);"></textarea><button class="remove-btn" onclick="this.parentElement.remove(); checkCompletion();">삭제</button>`; list.appendChild(item); checkCompletion(); }
+        function checkCompletion() { const fields = ['cardNickname', 'cardState', 'cardDensity', 'cardExample', 'authorNum', 'authorName']; const allFilled = fields.every(id => document.getElementById(id).value.trim() !== ""); const fCount = Array.from(document.querySelectorAll('#featureList textarea')).filter(ta => ta.value.trim().length > 0).length; const btn = document.getElementById('downloadBtn'); const alertBox = document.getElementById('cardAlertBox'); if(allFilled && fCount >= 2) { btn.classList.add('btn-ready'); alertBox.style.display = 'none'; return true; } else { btn.classList.remove('btn-ready'); return false; } }
+        function handleDownload() { if(!checkCompletion()) { document.getElementById('cardAlertBox').style.display = 'block'; return; } const addBtn = document.getElementById('addFeatureBtn'); const removeBtns = document.querySelectorAll('.remove-btn'); addBtn.style.display = 'none'; removeBtns.forEach(b => b.style.display = 'none'); const aNum = document.getElementById('authorNum').value.trim(), aName = document.getElementById('authorName').value.trim(); html2canvas(document.getElementById('elementCard'), { scale: 2, useCORS: true }).then(c => { const a = document.createElement('a'); a.download = `${elements[currentIdx].n}_원소카드 (${aNum} ${aName}).png`; a.href = c.toDataURL(); a.click(); addBtn.style.display = 'block'; removeBtns.forEach(b => b.style.display = 'block'); }); }
+        function syncCard() { const el = elements[currentIdx]; document.getElementById('cardName').innerText = el.n; document.getElementById('cardSymbol').innerText = el.s; document.getElementById('cP').innerText = atoms.p.length; document.getElementById('cN').innerText = atoms.n.length; document.getElementById('cE').innerText = atoms.e.length; }
+        updateTarget(1); animate();
+    </script>
+</body>
+</html>
